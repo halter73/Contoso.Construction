@@ -97,19 +97,14 @@ app.MapGet("/jobs",
 // Enables GET of a specific job
 app.MapGet("/jobs/{id}",
     async (int id, JobSiteDb db) =>
-        await db.Jobs.FindAsync(id)
+        await db.Jobs
+                .Include("Photos")
+                .FirstOrDefaultAsync(x => 
+                    x.Id == id)
             is Job job
                 ? Results.Ok(job)
                 : Results.NotFound()
                 );
-
-// Enables GET of all photos for a job
-app.MapGet("/jobs/{jobId}/photos",
-    async (int jobId, JobSiteDb db) =>
-        db.JobSitePhotos
-            .Where(j => j.JobId == jobId)
-                .ToList()
-        );
 
 // Upload a site photo
 app.MapPost("/jobs/{jobId}/photos/upload", 
@@ -155,9 +150,13 @@ app.MapPost("/jobs/{jobId}/photos",
     db.JobSitePhotos.Add(photo);
     await db.SaveChangesAsync();
 
+    var job = await db.Jobs
+                .Include("Photos")
+                .FirstOrDefaultAsync(x =>
+                    x.Id == jobId);
+
     return Results.Created(
-        $"/jobs/{jobId}/photos/{photo.Id}",
-            photo);
+        $"/jobs/{jobId}", job);
 });
 
 app.Run();
