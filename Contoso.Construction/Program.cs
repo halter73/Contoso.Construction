@@ -32,7 +32,7 @@ var openApiDesc = "Contoso.JobSiteAppApi";
 // Add OpenAPI services to the container.
 builder.Services.AddSwaggerGen(_ =>
 {
-    _.OperationFilter<AddFileParamTypes>();
+    _.OperationFilter<ImageParameterExtensionFilter>();
     _.SwaggerDoc(openApiDesc, new() 
     { 
         Title = "Contoso Construction Job Site", 
@@ -86,13 +86,15 @@ app.MapPost("/jobs/",
 
         return Results.Created(
             $"/jobs/{job.Id}", job); 
-    });
+    })
+    .WithName("CreateJob");
 
 // Enables GET of all jobs
 app.MapGet("/jobs",
     async (JobSiteDb db) => 
         await db.Jobs.ToListAsync()
-        );
+    )
+    .WithName("GetAllJobs");
 
 // Enables GET of a specific job
 app.MapGet("/jobs/{id}",
@@ -104,7 +106,8 @@ app.MapGet("/jobs/{id}",
             is Job job
                 ? Results.Ok(job)
                 : Results.NotFound()
-                );
+    )
+    .WithName("GetJob");
 
 // Upload a site photo
 app.MapPost("/jobs/{jobId}/photos/upload", 
@@ -112,33 +115,33 @@ app.MapPost("/jobs/{jobId}/photos/upload",
         int jobId,
         BlobServiceClient blobServiceClient,
         JobSiteDb db) =>
-{
-    if (!req.HasFormContentType)
     {
-        return Results.BadRequest();
-    }
+        if (!req.HasFormContentType)
+        {
+            return Results.BadRequest();
+        }
 
-    var form = await req.ReadFormAsync();
-    var file = form.Files["file"];
+        var form = await req.ReadFormAsync();
+        var file = form.Files["file"];
 
-    if (file is null)
-    {
-        return Results.BadRequest();
-    }
+        if (file is null)
+        {
+            return Results.BadRequest();
+        }
 
-    var name = file.FileName;
-    using var upStream = file.OpenReadStream();
-    var blobClient = blobServiceClient
-            .GetBlobContainerClient("uploads")
-                .GetBlobClient(name);
+        var name = file.FileName;
+        using var upStream = file.OpenReadStream();
+        var blobClient = blobServiceClient
+                .GetBlobContainerClient("uploads")
+                    .GetBlobClient(name);
 
-    await blobClient.UploadAsync(upStream);
+        await blobClient.UploadAsync(upStream);
 
-    return Results.Created(
-        blobClient.Uri.AbsoluteUri,
-        blobClient.Uri.AbsoluteUri);
-})
-.WithName("UploadImage");
+        return Results.Created(
+            blobClient.Uri.AbsoluteUri,
+            blobClient.Uri.AbsoluteUri);
+    })
+    .WithName(ImageParameterExtensionFilter.UPLOAD_SITE_PHOTO_OPERATION_ID);
 
 // Save the metadata for the site
 app.MapPost("/jobs/{jobId}/photos", 
@@ -146,18 +149,19 @@ app.MapPost("/jobs/{jobId}/photos",
         JobSitePhoto photo,
         BlobServiceClient blobServiceClient,
         JobSiteDb db) =>
-{
-    db.JobSitePhotos.Add(photo);
-    await db.SaveChangesAsync();
+    {
+        db.JobSitePhotos.Add(photo);
+        await db.SaveChangesAsync();
 
-    var job = await db.Jobs
-                .Include("Photos")
-                .FirstOrDefaultAsync(x =>
-                    x.Id == jobId);
+        var job = await db.Jobs
+                    .Include("Photos")
+                    .FirstOrDefaultAsync(x =>
+                        x.Id == jobId);
 
-    return Results.Created(
-        $"/jobs/{jobId}", job);
-});
+        return Results.Created(
+            $"/jobs/{jobId}", job);
+    })
+    .WithName("CreateJobSitePhoto");
 
 app.Run();
 

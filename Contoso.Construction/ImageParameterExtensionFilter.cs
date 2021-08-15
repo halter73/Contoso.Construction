@@ -8,11 +8,12 @@ using System.Reflection.Metadata;
 
 namespace Contoso.Construction;
 
-public class AddFileParamTypes : IOperationFilter
+public class ImageParameterExtensionFilter : IOperationFilter
 {
+    internal const string UPLOAD_SITE_PHOTO_OPERATION_ID = "UploadSitePhoto";
     public void Apply(OpenApiOperation operation, OperationFilterContext context)
     {
-        if (operation.OperationId == "UploadImage")
+        if (operation.OperationId == UPLOAD_SITE_PHOTO_OPERATION_ID)
         {
             operation.RequestBody = new OpenApiRequestBody
             {
