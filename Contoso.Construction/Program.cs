@@ -124,16 +124,15 @@ app.MapPost("/jobs/{jobId}/photos/upload",
         var form = await req.ReadFormAsync();
         var file = form.Files["file"];
 
-        if (file is null)
-        {
+        if (file is null) 
             return Results.BadRequest();
-        }
 
         var name = file.FileName;
-        using var upStream = file.OpenReadStream();
+        using var upStream = 
+           file.OpenReadStream();
         var blobClient = blobServiceClient
-                .GetBlobContainerClient("uploads")
-                    .GetBlobClient(name);
+               .GetBlobContainerClient("uploads")
+                   .GetBlobClient(name);
 
         await blobClient.UploadAsync(upStream);
 
@@ -141,7 +140,9 @@ app.MapPost("/jobs/{jobId}/photos/upload",
             blobClient.Uri.AbsoluteUri,
             blobClient.Uri.AbsoluteUri);
     })
-    .WithName(ImageParameterExtensionFilter.UPLOAD_SITE_PHOTO_OPERATION_ID);
+    .WithName(
+        ImageParameterExtensionFilter
+            .UPLOAD_SITE_PHOTO_OPERATION_ID);
 
 // Save the metadata for the site
 app.MapPost("/jobs/{jobId}/photos", 
