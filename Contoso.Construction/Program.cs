@@ -3,8 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Microsoft.Extensions.Configuration;
 using Azure.Identity;
-using 
-    System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.Extensions.Azure;
 
 // ----------------------------------------------
