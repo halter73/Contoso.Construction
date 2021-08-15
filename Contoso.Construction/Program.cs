@@ -15,8 +15,7 @@ builder.Host.ConfigureAppConfiguration(
     (context, config) =>
     {
         var uri = Environment
-            .GetEnvironmentVariable(
-                "AzureKeyVaultUri");
+            .GetEnvironmentVariable("VaultUri");
 
         config.AddAzureKeyVault(
             new Uri(uri),

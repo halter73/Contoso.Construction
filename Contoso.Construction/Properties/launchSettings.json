@@ -10,7 +10,7 @@
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
         "AZURE_USERNAME": "bradyg@fusiondemos.onmicrosoft.com",
-        "AzureKeyVaultUri": "https://contosoconstructionkeys.vault.azure.net/"
+        "VaultUri": "https://contosoconstructionkeys.vault.azure.net/"
       }
     }
   }
