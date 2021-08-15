@@ -3,7 +3,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Microsoft.Extensions.Configuration;
 using Azure.Identity;
-using System.ComponentModel.DataAnnotations.Schema;
+using 
+    System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.Extensions.Azure;
 
 // ----------------------------------------------
 // Site Job API Code
@@ -29,7 +31,7 @@ builder.Services.AddEndpointsApiExplorer();
 // The OpenAPI description name
 var openApiDesc = "Contoso.JobSiteAppApi";
 
-// Add application services to the container.
+// Add OpenAPI services to the container.
 builder.Services.AddSwaggerGen(_ =>
 {
     _.OperationFilter<AddFileParamTypes>();
@@ -43,7 +45,19 @@ builder.Services.AddSwaggerGen(_ =>
 // Add the Entity Framework Core DBContext
 builder.Services.AddDbContext<JobSiteDb>(_ =>
 {
-    _.UseSqlServer(builder.Configuration.GetConnectionString("AzureSqlConnectionString"));
+    _.UseSqlServer(
+        builder.Configuration
+            .GetConnectionString(
+                "AzureSqlConnectionString"));
+});
+
+// Add Azure Storage services to the app
+builder.Services.AddAzureClients(_ =>
+{
+    _.AddBlobServiceClient(
+        builder.Configuration
+            ["AzureStorageConnectionString:blob"]
+        );
 });
 
 // Build the app

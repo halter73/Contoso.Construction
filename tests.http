@@ -6,33 +6,33 @@ Content-Type: application/json
 
 ### create a job by the school
 
-put https://localhost:5001/jobs
+post https://localhost:5001/jobs
 Content-Type: application/json
 
 {
     "name": "Discovery Elm.",
     "latitude": 47.588379,
-    "longitude": -122.034170,
+    "longitude": -122.034170
 }
 
 ### create a job by the park
 
-put https://localhost:5001/jobs
+post https://localhost:5001/jobs
 Content-Type: application/json
 
 {
     "name": "Lake Park",
     "latitude": 47.584551,
-    "longitude": -122.013774,
+    "longitude": -122.013774
 }
 
 ### create a job on the street
 
-put https://localhost:5001/jobs
+post https://localhost:5001/jobs
 Content-Type: application/json
 
 {
-    "name": "Lake Park",
+    "name": "Street",
     "latitude": 47.580238,
-    "longitude": -122.023655,
+    "longitude": -122.023655
 }
