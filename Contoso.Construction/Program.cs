@@ -130,6 +130,7 @@ app.MapPost("/jobs/{jobId}/photos/upload",
         var name = file.FileName;
         using var upStream = 
            file.OpenReadStream();
+
         var blobClient = blobServiceClient
                .GetBlobContainerClient("uploads")
                    .GetBlobClient(name);
