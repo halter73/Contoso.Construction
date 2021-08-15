@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Microsoft.Extensions.Configuration;
 using Azure.Identity;
+using System.ComponentModel.DataAnnotations.Schema;
 
 // ----------------------------------------------
 // Site Job API Code
@@ -18,7 +19,7 @@ builder.Host.ConfigureAppConfiguration(
                 "AzureKeyVaultUri");
 
         config.AddAzureKeyVault(
-            new Uri(uri), 
+            new Uri(uri),
             new DefaultAzureCredential());
     });
 
@@ -29,14 +30,20 @@ builder.Services.AddEndpointsApiExplorer();
 var openApiDesc = "Contoso.JobSiteAppApi";
 
 // Add application services to the container.
-builder.Services.AddSwaggerGen(c =>
+builder.Services.AddSwaggerGen(_ =>
 {
-    c.OperationFilter<AddFileParamTypes>();
-    c.SwaggerDoc(openApiDesc, new() 
+    _.OperationFilter<AddFileParamTypes>();
+    _.SwaggerDoc(openApiDesc, new() 
     { 
         Title = "Contoso Construction Job Site", 
         Version = "2021-11-01" 
     });
+});
+
+// Add the Entity Framework Core DBContext
+builder.Services.AddDbContext<JobSiteDb>(_ =>
+{
+    _.UseSqlServer(builder.Configuration.GetConnectionString("AzureSqlConnectionString"));
 });
 
 // Build the app
@@ -59,16 +66,30 @@ if (app.Environment.IsDevelopment())
 
 // Enables creation of a new job 
 app.MapPost("/jobs/", 
-    async (JobSitePhoto jobSitePhoto, 
+    async (Job job, 
         JobSiteDb db) =>
     {
-        db.JobSitePhotos.Add(jobSitePhoto);
+        db.Jobs.Add(job);
         await db.SaveChangesAsync();
 
         return Results.Created(
-            $"/jobs/{jobSitePhoto.Id}", 
-                jobSitePhoto); ;
+            $"/jobs/{job.Id}", job); 
     });
+
+// Enables GET of all jobs
+app.MapGet("/jobs",
+    async (JobSiteDb db) => 
+        await db.Jobs.ToListAsync()
+        );
+
+// Enables GET of a specific job
+app.MapGet("/jobs/{id}",
+    async (int id, JobSiteDb db) =>
+        await db.Jobs.FindAsync(id)
+            is Job job
+                ? Results.Ok(job)
+                : Results.NotFound()
+                );
 
 // Upload a site photo
 app.MapPost("/upload", async (HttpRequest req) =>
@@ -104,6 +125,8 @@ app.Run();
 // ----------------------------------------------
 public class JobSitePhoto
 {
+    [DatabaseGenerated(
+        DatabaseGeneratedOption.Identity)]
     public int Id { get; set; }
     public string PhotoUploadUrl { get; set; } 
         = string.Empty;
@@ -112,11 +135,26 @@ public class JobSitePhoto
     public int Heading { get; set; }
 }
 
+public class Job
+{
+    [DatabaseGenerated(
+        DatabaseGeneratedOption.Identity)]
+    public int Id { get; set; }
+    public string Name { get; set; }
+    public double Latitude { get; set; }
+    public double Longitude { get; set; }
+    public List<JobSitePhoto> Photos 
+        { get; set; } = new List<JobSitePhoto>();
+}
+
 class JobSiteDb : DbContext
 {
     public JobSiteDb(
         DbContextOptions<JobSiteDb> options)
         : base(options) { }
+
+    public DbSet<Job> Jobs
+        => Set<Job>();
 
     public DbSet<JobSitePhoto> JobSitePhotos
         => Set<JobSitePhoto>();
