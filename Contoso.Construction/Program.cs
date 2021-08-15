@@ -5,6 +5,8 @@ using Microsoft.Extensions.Configuration;
 using Azure.Identity;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.Extensions.Azure;
+using Azure.Storage.Blobs;
+using Microsoft.AspNetCore.Mvc;
 
 // ----------------------------------------------
 // Site Job API Code
@@ -55,7 +57,7 @@ builder.Services.AddAzureClients(_ =>
 {
     _.AddBlobServiceClient(
         builder.Configuration
-            ["AzureStorageConnectionString:blob"]
+            ["AzureStorageConnectionString"]
         );
 });
 
@@ -105,7 +107,8 @@ app.MapGet("/jobs/{id}",
                 );
 
 // Upload a site photo
-app.MapPost("/upload", async (HttpRequest req) =>
+app.MapPost("/upload", async (HttpRequest req, 
+    BlobServiceClient blobServiceClient) =>
 {
     if (!req.HasFormContentType)
     {
@@ -120,14 +123,16 @@ app.MapPost("/upload", async (HttpRequest req) =>
         return Results.BadRequest();
     }
 
-    var uploads = file.FileName;
-    using var fileStream = 
-        File.OpenWrite(uploads);
-    using var uploadStream = 
-        file.OpenReadStream();
-    await uploadStream.CopyToAsync(fileStream);
+    var name = file.FileName;
+    using var upStream = file.OpenReadStream();
+    var blobClient = blobServiceClient
+            .GetBlobContainerClient("uploads")
+                .GetBlobClient(name);
+    await blobClient.UploadAsync(upStream);
 
-    return Results.NoContent();
+    return Results.Created(
+        blobClient.Uri.AbsoluteUri, null
+    );
 })
 .WithName("UploadImage");
 
