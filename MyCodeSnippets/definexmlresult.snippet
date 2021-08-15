@@ -1,0 +1,49 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<CodeSnippets  xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
+	<CodeSnippet Format="1.0.0">
+		<Header>
+			<Title>Define XmlResult</Title>
+			<Shortcut>definexmlresult</Shortcut>
+			<SnippetTypes>
+				<SnippetType>Expansion</SnippetType>
+			</SnippetTypes>
+		</Header>
+		<Snippet>
+			<Imports>
+				<Import>
+					<Namespace>System.Xml.Serialization</Namespace>
+				</Import>
+			</Imports>
+			<Code Language="csharp"><![CDATA[class XmlResult<T> : IResult
+{
+    private static readonly XmlSerializer _xmlSerializer = new(typeof(T));
+
+    private readonly T _result;
+
+    public XmlResult(T result)
+    {
+        _result = result;
+    }
+
+    public Task ExecuteAsync(HttpContext httpContext)
+    {
+        // Pool this for bettter efficiency
+        using var ms = new MemoryStream();
+
+        _xmlSerializer.Serialize(ms, _result);
+
+        httpContext.Response.ContentType = "application/xml";
+
+        ms.Position = 0;
+        return ms.CopyToAsync(httpContext.Response.Body);
+    }
+}
+
+static class XmlResultExtensions
+{
+    public static IResult Xml<T>(this IResultExtensions _, T result) => new XmlResult<T>(result);
+}$end$]]>
+			</Code>
+		</Snippet>
+	</CodeSnippet>
+</CodeSnippets>

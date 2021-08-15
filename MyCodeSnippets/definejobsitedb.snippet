@@ -1,0 +1,38 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<CodeSnippets  xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
+	<CodeSnippet Format="1.0.0">
+		<Header>
+			<Title>Define JobSiteDb</Title>
+			<Shortcut>definejob</Shortcut>
+			<SnippetTypes>
+				<SnippetType>Expansion</SnippetType>
+			</SnippetTypes>
+		</Header>
+		<Snippet>
+      <Imports>
+        <Import>
+          <Namespace>Microsoft.EntityFrameworkCore</Namespace>
+        </Import>
+      </Imports>
+			<Code Language="csharp"><![CDATA[public class Job
+{
+    public int Id { get; set; }
+    public double Latitude { get; set; }
+    public double Longitude { get; set; }
+    public string Name { get; set; }
+        = string.Empty;
+}
+
+class JobSiteDb : DbContext
+{
+    public JobSiteDb(
+        DbContextOptions<JobSiteDb> options)
+        : base(options) { }
+
+    public DbSet<Job> Jobs
+        => Set<Job>();
+}$end$]]>
+			</Code>
+		</Snippet>
+	</CodeSnippet>
+</CodeSnippets>

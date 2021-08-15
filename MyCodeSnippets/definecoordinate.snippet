@@ -1,0 +1,46 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<CodeSnippets  xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
+	<CodeSnippet Format="1.0.0">
+		<Header>
+			<Title>Define Coordinate</Title>
+			<Shortcut>definecoordinate</Shortcut>
+			<SnippetTypes>
+				<SnippetType>Expansion</SnippetType>
+			</SnippetTypes>
+		</Header>
+		<Snippet>
+			<Code Language="csharp"><![CDATA[public record Coordinate(double Latitude, double Longitude)
+{
+	public static bool TryParse(string input, out Coordinate? coordinate)
+	{
+		coordinate = default;
+		var splitArray = input.Split(',', 2);
+
+		if (splitArray.Length != 2)
+		{
+			return false;
+		}
+
+		if (!double.TryParse(splitArray[0], out var lat))
+		{
+			return false;
+		}
+
+		if (!double.TryParse(splitArray[1], out var lon))
+		{
+			return false;
+		}
+
+		coordinate = new(lat, lon);
+		return true;
+	}
+
+	public override string ToString()
+	{
+		return $$"{Latitude},{Longitude}";
+	}
+}$end$]]>
+			</Code>
+		</Snippet>
+	</CodeSnippet>
+</CodeSnippets>

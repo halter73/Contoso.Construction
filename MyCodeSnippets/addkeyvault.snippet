@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<CodeSnippets  xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
+	<CodeSnippet Format="1.0.0">
+		<Header>
+			<Title>Add Key Vault</Title>
+			<Shortcut>addkeyvault</Shortcut>
+			<SnippetTypes>
+				<SnippetType>Expansion</SnippetType>
+			</SnippetTypes>
+		</Header>
+		<Snippet>
+			<Imports>
+				<Import>
+					<Namespace>Azure.Identity</Namespace>
+				</Import>
+			</Imports>
+			<Code Language="csharp"><![CDATA[// Add the Azure Key Vault configuration provider
+if(!string.IsNullOrEmpty(builder.Configuration["VaultUri"]))
+{
+    builder.Configuration.AddAzureKeyVault(
+        new Uri(builder.Configuration["VaultUri"]),
+        new DefaultAzureCredential());
+}$end$]]>
+			</Code>
+		</Snippet>
+	</CodeSnippet>
+</CodeSnippets>

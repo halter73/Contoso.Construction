@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<CodeSnippets  xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
+	<CodeSnippet Format="1.0.0">
+		<Header>
+			<Title>Add DbContext</Title>
+			<Shortcut>adddbcontext</Shortcut>
+			<SnippetTypes>
+				<SnippetType>Expansion</SnippetType>
+			</SnippetTypes>
+		</Header>
+		<Snippet>
+			<Imports>
+				<Import>
+					<Namespace>Microsoft.EntityFrameworkCore</Namespace>
+				</Import>
+			</Imports>
+			<Code Language="csharp"><![CDATA[// Add the Entity Framework Core DBContext
+builder.Services.AddDbContext<JobSiteDb>(options =>
+{
+    options.UseSqlServer(
+        builder.Configuration
+            .GetConnectionString("AzureSqlConnectionString"));
+});
+$end$]]>
+			</Code>
+		</Snippet>
+	</CodeSnippet>
+</CodeSnippets>

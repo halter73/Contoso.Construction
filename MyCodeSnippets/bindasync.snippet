@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<CodeSnippets  xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
+	<CodeSnippet Format="1.0.0">
+		<Header>
+			<Title>BindAsync</Title>
+			<Shortcut>bindasync</Shortcut>
+			<SnippetTypes>
+				<SnippetType>Expansion</SnippetType>
+			</SnippetTypes>
+		</Header>
+		<Snippet>
+			<Imports>
+				<Import>
+					<Namespace>System.Reflection</Namespace>
+				</Import>
+			</Imports>
+			<Code Language="csharp"><![CDATA[public static async ValueTask<Coordinate?> BindAsync(HttpContext context, ParameterInfo parameter)
+{
+    var input = context.GetRouteValue(parameter.Name!) as string ?? string.Empty;
+    TryParse(input, out var coordinate);
+    return coordinate;
+}$end$]]>
+			</Code>
+		</Snippet>
+	</CodeSnippet>
+</CodeSnippets>
