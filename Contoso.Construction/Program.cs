@@ -106,9 +106,17 @@ app.MapGet("/jobs/{id}",
                 : Results.NotFound()
                 );
 
+// Enables GET of all photos for a job
+app.MapGet("/jobs/{jobId}/photos",
+    async (int jobId, JobSiteDb db) =>
+        db.JobSitePhotos.Where(j => j.JobId == jobId).ToList()
+        );
+
 // Upload a site photo
-app.MapPost("/upload", async (HttpRequest req, 
-    BlobServiceClient blobServiceClient) =>
+app.MapPost("/jobs/{jobId}/photos/upload", async (HttpRequest req,
+    [FromRoute] int jobId,
+    BlobServiceClient blobServiceClient,
+    JobSiteDb db) =>
 {
     if (!req.HasFormContentType)
     {
@@ -128,13 +136,29 @@ app.MapPost("/upload", async (HttpRequest req,
     var blobClient = blobServiceClient
             .GetBlobContainerClient("uploads")
                 .GetBlobClient(name);
+
     await blobClient.UploadAsync(upStream);
 
     return Results.Created(
-        blobClient.Uri.AbsoluteUri, null
-    );
+        blobClient.Uri.AbsoluteUri,
+        blobClient.Uri.AbsoluteUri);
 })
 .WithName("UploadImage");
+
+// Save the metadata for the site
+app.MapPost("/jobs/{jobId}/photos", 
+    async (int jobId,
+        JobSitePhoto photo,
+        BlobServiceClient blobServiceClient,
+        JobSiteDb db) =>
+{
+    db.JobSitePhotos.Add(photo);
+    await db.SaveChangesAsync();
+
+    return Results.Created(
+        $"/jobs/{jobId}/photos/{photo.Id}",
+            photo);
+});
 
 app.Run();
 
@@ -151,6 +175,7 @@ public class JobSitePhoto
     public double Latitude { get; set; }
     public double Longitude { get; set; }
     public int Heading { get; set; }
+    public int JobId { get; set; }
 }
 
 public class Job
@@ -176,4 +201,10 @@ class JobSiteDb : DbContext
 
     public DbSet<JobSitePhoto> JobSitePhotos
         => Set<JobSitePhoto>();
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Job>().HasMany(s => s.Photos);
+        base.OnModelCreating(modelBuilder);
+    }
 }
