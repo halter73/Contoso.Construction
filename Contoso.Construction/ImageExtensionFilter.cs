@@ -8,7 +8,7 @@ using System.Reflection.Metadata;
 
 namespace Contoso.Construction;
 
-public class ImageParameterExtensionFilter : IOperationFilter
+public class ImageExtensionFilter : IOperationFilter
 {
     internal const string UPLOAD_SITE_PHOTO_OPERATION_ID = "UploadSitePhoto";
     public void Apply(OpenApiOperation operation, OperationFilterContext context)

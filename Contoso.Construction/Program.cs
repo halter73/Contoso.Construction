@@ -32,7 +32,7 @@ var openApiDesc = "Contoso.JobSiteAppApi";
 // Add OpenAPI services to the container.
 builder.Services.AddSwaggerGen(_ =>
 {
-    _.OperationFilter<ImageParameterExtensionFilter>();
+    _.OperationFilter<ImageExtensionFilter>();
     _.SwaggerDoc(openApiDesc, new() 
     { 
         Title = "Contoso Construction Job Site", 
@@ -141,7 +141,7 @@ app.MapPost("/jobs/{jobId}/photos/upload",
             blobClient.Uri.AbsoluteUri);
     })
     .WithName(
-        ImageParameterExtensionFilter
+        ImageExtensionFilter
             .UPLOAD_SITE_PHOTO_OPERATION_ID);
 
 // Save the metadata for the site
