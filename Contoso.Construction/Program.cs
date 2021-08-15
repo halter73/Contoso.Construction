@@ -1,12 +1,9 @@
+using Azure.Identity;
+using Azure.Storage.Blobs;
 using Contoso.Construction;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.OpenApi.Models;
-using Microsoft.Extensions.Configuration;
-using Azure.Identity;
-using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.Extensions.Azure;
-using Azure.Storage.Blobs;
-using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations.Schema;
 
 // ----------------------------------------------
 // Site Job API Code
@@ -109,14 +106,17 @@ app.MapGet("/jobs/{id}",
 // Enables GET of all photos for a job
 app.MapGet("/jobs/{jobId}/photos",
     async (int jobId, JobSiteDb db) =>
-        db.JobSitePhotos.Where(j => j.JobId == jobId).ToList()
+        db.JobSitePhotos
+            .Where(j => j.JobId == jobId)
+                .ToList()
         );
 
 // Upload a site photo
-app.MapPost("/jobs/{jobId}/photos/upload", async (HttpRequest req,
-    [FromRoute] int jobId,
-    BlobServiceClient blobServiceClient,
-    JobSiteDb db) =>
+app.MapPost("/jobs/{jobId}/photos/upload", 
+    async (HttpRequest req,
+        int jobId,
+        BlobServiceClient blobServiceClient,
+        JobSiteDb db) =>
 {
     if (!req.HasFormContentType)
     {
@@ -202,9 +202,12 @@ class JobSiteDb : DbContext
     public DbSet<JobSitePhoto> JobSitePhotos
         => Set<JobSitePhoto>();
 
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    protected override void OnModelCreating(
+        ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<Job>().HasMany(s => s.Photos);
+        modelBuilder.Entity<Job>()
+                .HasMany(s => s.Photos);
+
         base.OnModelCreating(modelBuilder);
     }
 }
