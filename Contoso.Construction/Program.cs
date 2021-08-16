@@ -11,16 +11,12 @@ using System.ComponentModel.DataAnnotations.Schema;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add the Azure Key Vault configuration provider
-builder.Host.ConfigureAppConfiguration(
-    (context, config) =>
-    {
-        var uri = Environment
+var uri = Environment
             .GetEnvironmentVariable("VaultUri");
 
-        config.AddAzureKeyVault(
+builder.Configuration.AddAzureKeyVault(
             new Uri(uri),
             new DefaultAzureCredential());
-    });
 
 // Enable the API explorer
 builder.Services.AddEndpointsApiExplorer();
@@ -109,9 +105,13 @@ app.MapGet("/jobs/{id}",
     .WithName("GetJob");
 
 // Upload a site photo
-app.MapPost("/jobs/{jobId}/photos/upload", 
+app.MapPost(
+    "/jobs/{jobId}/photos/{lat}/{lng}/{heading}", 
     async (HttpRequest req,
         int jobId,
+        double lat,
+        double lng,
+        int heading,
         BlobServiceClient blobServiceClient,
         JobSiteDb db) =>
     {
@@ -136,22 +136,16 @@ app.MapPost("/jobs/{jobId}/photos/upload",
 
         await blobClient.UploadAsync(upStream);
 
-        return Results.Created(
-            blobClient.Uri.AbsoluteUri,
-            blobClient.Uri.AbsoluteUri);
-    })
-    .WithName(
-        ImageExtensionFilter
-            .UPLOAD_SITE_PHOTO_OPERATION_ID);
+        db.JobSitePhotos.Add(new JobSitePhoto
+        {
+            JobId = jobId,
+            PhotoUploadUrl =
+                blobClient.Uri.AbsoluteUri,
+            Latitude = lat,
+            Longitude = lng,
+            Heading = heading
+        });
 
-// Save the metadata for the site
-app.MapPost("/jobs/{jobId}/photos", 
-    async (int jobId,
-        JobSitePhoto photo,
-        BlobServiceClient blobServiceClient,
-        JobSiteDb db) =>
-    {
-        db.JobSitePhotos.Add(photo);
         await db.SaveChangesAsync();
 
         var job = await db.Jobs
@@ -162,7 +156,9 @@ app.MapPost("/jobs/{jobId}/photos",
         return Results.Created(
             $"/jobs/{jobId}", job);
     })
-    .WithName("CreateJobSitePhoto");
+    .WithName(
+        ImageExtensionFilter
+            .UPLOAD_SITE_PHOTO_OPERATION_ID);
 
 app.Run();
 
