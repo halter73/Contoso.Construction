@@ -30,7 +30,7 @@ builder.Services.AddSwaggerGen(_ =>
     _.OperationFilter<ImageExtensionFilter>();
     _.SwaggerDoc(openApiDesc, new() 
     { 
-        Title = "Contoso Construction Job Site", 
+        Title = "Job Site Survey App API", 
         Version = "2021-11-01" 
     });
 });
