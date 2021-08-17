@@ -69,7 +69,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(c =>
         c.SwaggerEndpoint(
             $"/{openApiDesc}.json", openApiDesc)
-    );
+        );
 }
 
 // Enables creation of a new job 
@@ -83,8 +83,7 @@ app.MapPost("/jobs/",
         return Results.Created(
             $"/jobs/{job.Id}", job); 
     })
-    .Produces<Job>(StatusCodes.Status201Created,
-        "application/json")
+    .Produces<Job>(StatusCodes.Status201Created)
     .WithName("CreateJob");
 
 // Enables GET of all jobs
@@ -92,8 +91,7 @@ app.MapGet("/jobs",
     async (JobSiteDb db) => 
         await db.Jobs.ToListAsync()
     )
-    .Produces<List<Job>>(StatusCodes.Status200OK,
-        "application/json")
+    .Produces<List<Job>>(StatusCodes.Status200OK)
     .WithName("GetAllJobs");
 
 // Enables GET of a specific job
@@ -104,8 +102,7 @@ app.MapGet("/jobs/{id}",
                 ? Results.Ok(job)
                 : Results.NotFound()
     )
-    .Produces<Job>(StatusCodes.Status200OK,
-        "application/json")
+    .Produces<Job>(StatusCodes.Status200OK)
     .Produces(StatusCodes.Status404NotFound)
     .WithName("GetJob");
 
@@ -119,8 +116,7 @@ app.MapGet("/jobs/search/{query}",
                 ? Results.Ok(jobs)
                 : Results.NotFound(new Job[] { })
     )
-    .Produces<List<Job>>(StatusCodes.Status200OK,
-        "application/json")
+    .Produces<List<Job>>(StatusCodes.Status200OK)
     .Produces(StatusCodes.Status404NotFound)
     .WithName("SearchJobs");
 
@@ -192,12 +188,12 @@ public class JobSitePhoto
     [DatabaseGenerated(
         DatabaseGeneratedOption.Identity)]
     public int Id { get; set; }
-    public string PhotoUploadUrl { get; set; } 
-        = string.Empty;
-    public double Latitude { get; set; }
-    public double Longitude { get; set; }
     public int Heading { get; set; }
     public int JobId { get; set; }
+    public double Latitude { get; set; }
+    public double Longitude { get; set; }
+    public string PhotoUploadUrl { get; set; }
+        = string.Empty;
 }
 
 public class Job
@@ -205,10 +201,10 @@ public class Job
     [DatabaseGenerated(
         DatabaseGeneratedOption.Identity)]
     public int Id { get; set; }
-    public string Name { get; set; }
-        = string.Empty;
     public double Latitude { get; set; }
     public double Longitude { get; set; }
+    public string Name { get; set; }
+        = string.Empty;
     public List<JobSitePhoto> Photos 
         { get; set; } = new List<JobSitePhoto>();
 }
