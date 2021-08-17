@@ -19,23 +19,6 @@ builder.Configuration.AddAzureKeyVault(
             new Uri(uri),
             new DefaultAzureCredential());
 
-// Enable the API explorer
-builder.Services.AddEndpointsApiExplorer();
-
-// The OpenAPI description name
-var openApiDesc = "Contoso.JobSiteAppApi";
-
-// Add OpenAPI services to the container.
-builder.Services.AddSwaggerGen(_ =>
-{
-    _.OperationFilter<ImageExtensionFilter>();
-    _.SwaggerDoc(openApiDesc, new() 
-    { 
-        Title = "Job Site Survey App API", 
-        Version = "2021-11-01" 
-    });
-});
-
 // Add the Entity Framework Core DBContext
 builder.Services.AddDbContext<JobSiteDb>(_ =>
 {
@@ -52,6 +35,23 @@ builder.Services.AddAzureClients(_ =>
         builder.Configuration
             ["AzureStorageConnectionString"]
         );
+});
+
+// Enable the API explorer
+builder.Services.AddEndpointsApiExplorer();
+
+// The OpenAPI description name
+var openApiDesc = "Contoso.JobSiteAppApi";
+
+// Add OpenAPI services to the container.
+builder.Services.AddSwaggerGen(_ =>
+{
+    _.OperationFilter<ImageExtensionFilter>();
+    _.SwaggerDoc(openApiDesc, new() 
+    { 
+        Title = "Job Site Survey App API", 
+        Version = "2021-11-01" 
+    });
 });
 
 // Build the app
@@ -114,8 +114,7 @@ app.MapGet("/jobs/search/{query}",
     (string query, JobSiteDb db) =>
         db.Jobs
             .Include("Photos")
-            .Where(x =>
-                x.Name.Contains(query))
+            .Where(x => x.Name.Contains(query))
             is IEnumerable<Job> jobs
                 ? Results.Ok(jobs)
                 : Results.NotFound(new Job[] { })
