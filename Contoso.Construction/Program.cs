@@ -1,6 +1,7 @@
 using Azure.Identity;
 using Azure.Storage.Blobs;
 using Contoso.Construction;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Azure;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -82,6 +83,8 @@ app.MapPost("/jobs/",
         return Results.Created(
             $"/jobs/{job.Id}", job); 
     })
+    .Produces<Job>(StatusCodes.Status201Created,
+        "application/json")
     .WithName("CreateJob");
 
 // Enables GET of all jobs
@@ -89,24 +92,26 @@ app.MapGet("/jobs",
     async (JobSiteDb db) => 
         await db.Jobs.ToListAsync()
     )
+    .Produces<List<Job>>(StatusCodes.Status200OK,
+        "application/json")
     .WithName("GetAllJobs");
 
 // Enables GET of a specific job
 app.MapGet("/jobs/{id}",
     async (int id, JobSiteDb db) =>
-        await db.Jobs
-                .Include("Photos")
-                .FirstOrDefaultAsync(x => 
-                    x.Id == id)
+        await db.Jobs.FindAsync(id)
             is Job job
-                ? Results.Ok(new Job[] { job })
-                : Results.NotFound(new Job[] { })
+                ? Results.Ok(job)
+                : Results.NotFound()
     )
+    .Produces<Job>(StatusCodes.Status200OK,
+        "application/json")
+    .Produces(StatusCodes.Status404NotFound)
     .WithName("GetJob");
 
 // Enables searching for a job
 app.MapGet("/jobs/search/{query}",
-    async (string query, JobSiteDb db) =>
+    (string query, JobSiteDb db) =>
         db.Jobs
             .Include("Photos")
             .Where(x =>
@@ -115,6 +120,9 @@ app.MapGet("/jobs/search/{query}",
                 ? Results.Ok(jobs)
                 : Results.NotFound(new Job[] { })
     )
+    .Produces<List<Job>>(StatusCodes.Status200OK,
+        "application/json")
+    .Produces(StatusCodes.Status404NotFound)
     .WithName("SearchJobs");
 
 // Upload a site photo
@@ -169,6 +177,8 @@ app.MapPost(
         return Results.Created(
             $"/jobs/{jobId}", job);
     })
+    .Produces<Job>(StatusCodes.Status200OK,
+        "application/json")
     .WithName(
         ImageExtensionFilter
             .UPLOAD_SITE_PHOTO_OPERATION_ID);
