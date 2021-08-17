@@ -99,10 +99,23 @@ app.MapGet("/jobs/{id}",
                 .FirstOrDefaultAsync(x => 
                     x.Id == id)
             is Job job
-                ? Results.Ok(job)
-                : Results.NotFound()
+                ? Results.Ok(new Job[] { job })
+                : Results.NotFound(new Job[] { })
     )
     .WithName("GetJob");
+
+// Enables searching for a job
+app.MapGet("/jobs/search/{query}",
+    async (string query, JobSiteDb db) =>
+        db.Jobs
+            .Include("Photos")
+            .Where(x =>
+                x.Name.Contains(query))
+            is IEnumerable<Job> jobs
+                ? Results.Ok(jobs)
+                : Results.NotFound(new Job[] { })
+    )
+    .WithName("SearchJobs");
 
 // Upload a site photo
 app.MapPost(
@@ -184,6 +197,7 @@ public class Job
         DatabaseGeneratedOption.Identity)]
     public int Id { get; set; }
     public string Name { get; set; }
+        = string.Empty;
     public double Latitude { get; set; }
     public double Longitude { get; set; }
     public List<JobSitePhoto> Photos 
