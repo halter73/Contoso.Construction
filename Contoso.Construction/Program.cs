@@ -96,7 +96,10 @@ app.MapGet("/jobs",
 // Enables GET of a specific job
 app.MapGet("/jobs/{id}",
     async (int id, JobSiteDb db) =>
-        await db.Jobs.FindAsync(id)
+        await db.Jobs
+                .Include("Photos")
+                    .FirstOrDefaultAsync(_ => 
+                        _.Id == id)
             is Job job
                 ? Results.Ok(job)
                 : Results.NotFound()
