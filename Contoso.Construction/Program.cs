@@ -142,13 +142,12 @@ app.MapPost(
         if (file is null) 
             return Results.BadRequest();
 
-        var name = file.FileName;
         using var upStream = 
            file.OpenReadStream();
 
         var blobClient = blobServiceClient
                .GetBlobContainerClient("uploads")
-                   .GetBlobClient(name);
+                   .GetBlobClient(file.FileName);
 
         await blobClient.UploadAsync(upStream);
 
