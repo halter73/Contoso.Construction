@@ -1,7 +1,6 @@
 using Azure.Identity;
 using Azure.Storage.Blobs;
 using Contoso.Construction;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Azure;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -154,11 +153,11 @@ app.MapPost(
         db.JobSitePhotos.Add(new JobSitePhoto
         {
             JobId = jobId,
-            PhotoUploadUrl =
-                blobClient.Uri.AbsoluteUri,
             Latitude = lat,
             Longitude = lng,
-            Heading = heading
+            Heading = heading,
+            PhotoUploadUrl =
+                blobClient.Uri.AbsoluteUri
         });
 
         await db.SaveChangesAsync();
@@ -177,6 +176,7 @@ app.MapPost(
         ImageExtensionFilter
             .UPLOAD_SITE_PHOTO_OPERATION_ID);
 
+// Start the host and run the app
 app.Run();
 
 // ----------------------------------------------
