@@ -14,6 +14,15 @@ resource sqlServer 'Microsoft.Sql/servers@2014-04-01' ={
   }
 }
 
+resource sqlFirewallRules 'Microsoft.Sql/servers/firewallRules@2014-04-01' = {
+  parent: sqlServer
+  name: 'dbfirewallrules'
+  properties: {
+    startIpAddress: '0.0.0.0'
+    endIpAddress: '0.0.0.0'
+  }
+}
+
 resource sqlServerDatabase 'Microsoft.Sql/servers/databases@2014-04-01' = {
   parent: sqlServer
   name: '${resourceBaseName}db'
@@ -40,11 +49,10 @@ resource keyVault 'Microsoft.KeyVault/vaults@2019-09-01' = {
         objectId: currentUserObjectId
         permissions: {
           keys: [
-            'get'
+            'all'
           ]
           secrets: [
-            'list'
-            'get'
+            'all'
           ]
         }
       }
@@ -103,6 +111,9 @@ resource appServicePlan 'Microsoft.Web/serverfarms@2020-12-01' = {
 resource webApp 'Microsoft.Web/sites@2018-11-01' = {
   name: '${resourceBaseName}web'
   location: resourceGroup().location
+  identity: {
+    type: 'SystemAssigned'
+  }
   properties: {
     serverFarmId: appServicePlan.id
     siteConfig: {
@@ -117,6 +128,25 @@ resource webApp 'Microsoft.Web/sites@2018-11-01' = {
         }
       ]
     }
+  }
+}
+
+resource webAppAccessPolicy 'Microsoft.KeyVault/vaults/accessPolicies@2019-09-01' = {
+  parent: keyVault
+  name: 'add'
+  properties: {
+    accessPolicies: [
+      {
+        tenantId: subscription().tenantId
+        objectId: webApp.identity.principalId
+        permissions: {
+          secrets: [
+            'get'
+            'list'
+          ]
+        }
+      }
+    ]
   }
 }
 

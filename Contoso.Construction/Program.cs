@@ -179,6 +179,13 @@ app.MapPost(
         ImageExtensionFilter
             .UPLOAD_SITE_PHOTO_OPERATION_ID);
 
+// Make sure the SQL DB schema has been created
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<JobSiteDb>();
+    db.Database.EnsureCreated();
+}
+
 // Start the host and run the app
 app.Run();
 
