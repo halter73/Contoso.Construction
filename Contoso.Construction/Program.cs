@@ -75,6 +75,30 @@ if (app.Environment.IsDevelopment())
     }
 }
 
+// Enables GET of all jobs
+app.MapGet("/jobs",
+    async (JobSiteDb db) =>
+        await db.Jobs.ToListAsync()
+    )
+    .Produces<List<Job>>(StatusCodes.Status200OK)
+    .WithName("GetAllJobs");
+
+
+// Enables GET of a specific job
+app.MapGet("/jobs/{id}",
+    async (int id, JobSiteDb db) =>
+        await db.Jobs
+                .Include("Photos")
+                    .FirstOrDefaultAsync(_ =>
+                        _.Id == id)
+            is Job job
+                ? Results.Ok(job)
+                : Results.NotFound()
+    )
+    .Produces<Job>(StatusCodes.Status200OK)
+    .Produces(StatusCodes.Status404NotFound)
+    .WithName("GetJob");
+
 // Enables creation of a new job 
 app.MapPost("/jobs/", 
     async (Job job, 
@@ -88,29 +112,6 @@ app.MapPost("/jobs/",
     })
     .Produces<Job>(StatusCodes.Status201Created)
     .WithName("CreateJob");
-
-// Enables GET of all jobs
-app.MapGet("/jobs",
-    async (JobSiteDb db) => 
-        await db.Jobs.ToListAsync()
-    )
-    .Produces<List<Job>>(StatusCodes.Status200OK)
-    .WithName("GetAllJobs");
-
-// Enables GET of a specific job
-app.MapGet("/jobs/{id}",
-    async (int id, JobSiteDb db) =>
-        await db.Jobs
-                .Include("Photos")
-                    .FirstOrDefaultAsync(_ => 
-                        _.Id == id)
-            is Job job
-                ? Results.Ok(job)
-                : Results.NotFound()
-    )
-    .Produces<Job>(StatusCodes.Status200OK)
-    .Produces(StatusCodes.Status404NotFound)
-    .WithName("GetJob");
 
 // Enables searching for a job
 app.MapGet("/jobs/search/{query}",
