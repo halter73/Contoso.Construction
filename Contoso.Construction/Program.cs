@@ -5,9 +5,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Azure;
 using System.ComponentModel.DataAnnotations.Schema;
 
-// ----------------------------------------------
-// Site Job API Code
-// ----------------------------------------------
 var builder = WebApplication.CreateBuilder(args);
 
 // Add the Azure Key Vault configuration provider
@@ -69,6 +66,13 @@ if (app.Environment.IsDevelopment())
         c.SwaggerEndpoint(
             $"/{openApiDesc}.json", openApiDesc)
         );
+
+    // Make sure the SQL DB schema has been created
+    using (var scope = app.Services.CreateScope())
+    {
+        var db = scope.ServiceProvider.GetRequiredService<JobSiteDb>();
+        db.Database.EnsureCreated();
+    }
 }
 
 // Enables creation of a new job 
@@ -178,13 +182,6 @@ app.MapPost(
     .WithName(
         ImageExtensionFilter
             .UPLOAD_SITE_PHOTO_OPERATION_ID);
-
-// Make sure the SQL DB schema has been created
-using (var scope = app.Services.CreateScope())
-{
-    var db = scope.ServiceProvider.GetRequiredService<JobSiteDb>();
-    db.Database.EnsureCreated();
-}
 
 // Start the host and run the app
 app.Run();
