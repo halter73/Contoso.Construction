@@ -169,11 +169,11 @@ resource api 'Microsoft.ApiManagement/service/apis@2020-12-01' = {
   name: 'job-site-survey-app-api'
   properties: {
     format: 'swagger-link-json'
-    value: 'https://sitephotoapi.azurewebsites.net/Contoso.JobSiteAppApi.json'
+    value: 'https://${webApp.properties.defaultHostName}/Contoso.JobSiteAppApi.json'
+    serviceUrl: 'https://${webApp.properties.defaultHostName}'
     subscriptionRequired: false
     displayName: 'Job Site Survey App API'
     path: '/jobsitesapp'
-    serviceUrl: 'https://${webApp.properties.defaultHostName}'
     protocols: [
       'http'
       'https'
