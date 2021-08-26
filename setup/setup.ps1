@@ -1,5 +1,5 @@
 param (
-    $resourceBaseName,
+    $resourceBaseName="contoso$( Get-Random -Maximum 1000)",
     $apiManagementOwnerEmail='admin@contoso.com',
     $apiManagementOwnerName='API Admin',
     $sqlServerDbUsername='contoso',
