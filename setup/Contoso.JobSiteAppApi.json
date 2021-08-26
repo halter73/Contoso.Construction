@@ -1,0 +1,242 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Job Site Survey App API",
+    "version": "2021-11-01"
+  },
+  "paths": {
+    "/jobs": {
+      "get": {
+        "tags": [
+          "Contoso.Construction"
+        ],
+        "operationId": "GetAllJobs",
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Job"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/jobs/{id}": {
+      "get": {
+        "tags": [
+          "Contoso.Construction"
+        ],
+        "operationId": "GetJob",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/Job"
+            }
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/jobs/": {
+      "post": {
+        "tags": [
+          "Contoso.Construction"
+        ],
+        "operationId": "CreateJob",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Job"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/Job"
+            }
+          }
+        }
+      }
+    },
+    "/jobs/search/{query}": {
+      "get": {
+        "tags": [
+          "Contoso.Construction"
+        ],
+        "operationId": "SearchJobs",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "query",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Job"
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/jobs/{jobId}/photos/{lat}/{lng}/{heading}": {
+      "post": {
+        "tags": [
+          "Contoso.Construction"
+        ],
+        "operationId": "UploadSitePhoto",
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "jobId",
+            "required": true,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "in": "path",
+            "name": "lat",
+            "required": true,
+            "type": "number",
+            "format": "double"
+          },
+          {
+            "in": "path",
+            "name": "lng",
+            "required": true,
+            "type": "number",
+            "format": "double"
+          },
+          {
+            "in": "path",
+            "name": "heading",
+            "required": true,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "in": "formData",
+            "name": "file",
+            "required": true,
+            "type": "file",
+            "x-ms-media-kind": "image"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "$ref": "#/definitions/Job"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Job": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "latitude": {
+          "format": "double",
+          "type": "number"
+        },
+        "longitude": {
+          "format": "double",
+          "type": "number"
+        },
+        "name": {
+          "type": "string"
+        },
+        "photos": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/JobSitePhoto"
+          }
+        }
+      }
+    },
+    "JobSitePhoto": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "heading": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "jobId": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "latitude": {
+          "format": "double",
+          "type": "number"
+        },
+        "longitude": {
+          "format": "double",
+          "type": "number"
+        },
+        "photoUploadUrl": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}
