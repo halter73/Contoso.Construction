@@ -8,9 +8,12 @@ using System.ComponentModel.DataAnnotations.Schema;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add the Azure Key Vault configuration provider
-builder.Configuration.AddAzureKeyVault(
-        new Uri(Environment.GetEnvironmentVariable("VaultUri")),
-        new DefaultAzureCredential());
+//if(!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("VaultUri")))
+//{
+//    builder.Configuration.AddAzureKeyVault(
+//        new Uri(Environment.GetEnvironmentVariable("VaultUri")),
+//        new DefaultAzureCredential());
+//}
 
 // Add the Entity Framework Core DBContext
 builder.Services.AddDbContext<JobSiteDb>(_ =>
