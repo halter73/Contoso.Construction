@@ -7,13 +7,23 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// ----------------------------------------------
+// Note: This is commented out to enable "clone-
+// to-build success, as until you've created the
+// key vault resource and put the Vault URI into
+// Properties/launchSettings.json, this code will
+// result with a compilation error. Run the setup
+// scripts in the "setup" folder in the GitHub 
+// repo, and then you can paste the Vault URI. 
+// ----------------------------------------------
+
 // Add the Azure Key Vault configuration provider
-//if(!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("VaultUri")))
-//{
-//    builder.Configuration.AddAzureKeyVault(
-//        new Uri(Environment.GetEnvironmentVariable("VaultUri")),
-//        new DefaultAzureCredential());
-//}
+// if(!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("VaultUri")))
+// {
+//     builder.Configuration.AddAzureKeyVault(
+//         new Uri(Environment.GetEnvironmentVariable("VaultUri")),
+//         new DefaultAzureCredential());
+// }
 
 // Add the Entity Framework Core DBContext
 builder.Services.AddDbContext<JobSiteDb>(_ =>
