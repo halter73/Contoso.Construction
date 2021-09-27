@@ -18,12 +18,12 @@ var builder = WebApplication.CreateBuilder(args);
 // ----------------------------------------------
 
 // Add the Azure Key Vault configuration provider
-// if(!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("VaultUri")))
-// {
-//     builder.Configuration.AddAzureKeyVault(
-//         new Uri(Environment.GetEnvironmentVariable("VaultUri")),
-//         new DefaultAzureCredential());
-// }
+if(!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("VaultUri")))
+{
+    builder.Configuration.AddAzureKeyVault(
+        new Uri(Environment.GetEnvironmentVariable("VaultUri")),
+        new DefaultAzureCredential());
+}
 
 // Add the Entity Framework Core DBContext
 builder.Services.AddDbContext<JobSiteDb>(_ =>
@@ -45,6 +45,10 @@ builder.Services.AddAzureClients(_ =>
 
 // Enable the API explorer
 builder.Services.AddEndpointsApiExplorer();
+
+// Enable Blazor WASM hosting
+builder.Services.AddControllersWithViews();
+builder.Services.AddRazorPages();
 
 // The OpenAPI description name
 var openApiDesc = "Contoso.JobSiteAppApi";
@@ -85,7 +89,7 @@ if (app.Environment.IsDevelopment())
     }
 }
 
-// Enables GET of all jobs
+Enables GET of all jobs
 app.MapGet("/jobs",
     async (JobSiteDb db) =>
         await db.Jobs.ToListAsync()
@@ -193,6 +197,16 @@ app.MapPost(
     .WithName(
         ImageExtensionFilter
             .UPLOAD_SITE_PHOTO_OPERATION_ID);
+
+app.UseHttpsRedirection();
+
+app.UseBlazorFrameworkFiles();
+app.UseStaticFiles();
+
+app.UseRouting();
+
+app.MapRazorPages();
+app.MapFallbackToFile("index.html");
 
 // Start the host and run the app
 app.Run();

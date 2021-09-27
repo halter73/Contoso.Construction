@@ -29,7 +29,7 @@
 	},
 
 	// Use 'postCreateCommand' to run commands after the container is created.
-	"onCreateCommand": "${containerWorkspaceFolder}/.devcontainer/library-scripts/dotnet-install.sh --jsonfile ${containerWorkspaceFolder}/global.json",
+	"onCreateCommand": "${containerWorkspaceFolder}/.devcontainer/library-scripts/dotnet-install.sh --jsonfile ${containerWorkspaceFolder}/global.json -installdir ${containerWorkspaceFolder}/.dotnet",
 
 	// Use 'postCreateCommand' to run commands after the container is created.
 	"postCreateCommand": "dotnet restore",
