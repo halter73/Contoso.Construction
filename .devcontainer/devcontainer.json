@@ -1,0 +1,36 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the README at:
+// https://github.com/microsoft/vscode-dev-containers/tree/v0.194.0/containers/dotnet
+{
+	"name": "ContosoConstruction",
+	"build": {
+		"dockerfile": "Dockerfile",
+		"args": { 
+			// Options
+			"NODE_VERSION": "lts/*",
+			"INSTALL_AZURE_CLI": "false"
+		}
+	},
+
+	// Set *default* container specific settings.json values on container create.
+	"settings": {},
+
+	// Add the IDs of extensions you want installed when the container is created.
+	"extensions": [
+		"ms-dotnettools.csharp"
+	],
+
+	// Use 'forwardPorts' to make a list of ports inside the container available locally.
+	"forwardPorts": [5000, 5001],
+
+	"remoteEnv": {
+		"PATH": "${containerWorkspaceFolder}/.dotnet:${containerEnv:PATH}",
+		"DOTNET_MULTILEVEL_LOOKUP": "0",
+		"TARGET": "net6.0"
+	},
+
+	// Use 'postCreateCommand' to run commands after the container is created.
+	"onCreateCommand": "${containerWorkspaceFolder}/.devcontainer/library-scripts/dotnet-install.sh --jsonfile ${containerWorkspaceFolder}/global.json",
+
+	// Use 'postCreateCommand' to run commands after the container is created.
+	"postCreateCommand": "dotnet restore",
+}
