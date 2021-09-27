@@ -89,7 +89,7 @@ if (app.Environment.IsDevelopment())
     }
 }
 
-Enables GET of all jobs
+// Enables GET of all jobs
 app.MapGet("/jobs",
     async (JobSiteDb db) =>
         await db.Jobs.ToListAsync()
