@@ -20,7 +20,7 @@ Write-Host 'Building .NET 6 minimal API project'
 dotnet build ..\Contoso.Construction\Contoso.Construction.csproj
 
 Write-Host 'Packaging .NET 6 minimal API project for deployment'
-dotnet publish ..\Contoso.Construction\Contoso.Construction.csproj --self-contained -r win-x86 -o ..\publish
+dotnet publish ..\Server\Contoso.Construction.Server.csproj --self-contained -r win-x86 -o ..\publish
 Compress-Archive -Path ..\publish\*.* -DestinationPath deployment.zip -Force
 
 Write-Host 'Deploying .NET 6 minimal API project to Azure Web Apps'
