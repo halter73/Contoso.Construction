@@ -122,65 +122,6 @@
           }
         }
       }
-    },
-    "/jobs/{jobId}/photos/{lat}/{lng}/{heading}": {
-      "post": {
-        "tags": [
-          "dotnet-swagger"
-        ],
-        "operationId": "UploadSitePhoto",
-        "consumes": [
-          "multipart/form-data"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "in": "path",
-            "name": "jobId",
-            "required": true,
-            "type": "integer",
-            "format": "int32"
-          },
-          {
-            "in": "path",
-            "name": "lat",
-            "required": true,
-            "type": "number",
-            "format": "double"
-          },
-          {
-            "in": "path",
-            "name": "lng",
-            "required": true,
-            "type": "number",
-            "format": "double"
-          },
-          {
-            "in": "path",
-            "name": "heading",
-            "required": true,
-            "type": "integer",
-            "format": "int32"
-          },
-          {
-            "in": "formData",
-            "name": "file",
-            "required": true,
-            "type": "file",
-            "x-ms-media-kind": "image"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success",
-            "schema": {
-              "$ref": "#/definitions/Job"
-            }
-          }
-        }
-      }
     }
   },
   "definitions": {
@@ -200,40 +141,6 @@
           "type": "number"
         },
         "name": {
-          "type": "string"
-        },
-        "photos": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/JobSitePhoto"
-          }
-        }
-      }
-    },
-    "JobSitePhoto": {
-      "type": "object",
-      "properties": {
-        "id": {
-          "format": "int32",
-          "type": "integer"
-        },
-        "heading": {
-          "format": "int32",
-          "type": "integer"
-        },
-        "jobId": {
-          "format": "int32",
-          "type": "integer"
-        },
-        "latitude": {
-          "format": "double",
-          "type": "number"
-        },
-        "longitude": {
-          "format": "double",
-          "type": "number"
-        },
-        "photoUploadUrl": {
           "type": "string"
         }
       }
