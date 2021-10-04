@@ -1,6 +1,4 @@
 using Azure.Identity;
-using Azure.Storage.Blobs;
-using Contoso.Construction;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Azure;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -18,29 +16,26 @@ var builder = WebApplication.CreateBuilder(args);
 // ----------------------------------------------
 
 // Add the Azure Key Vault configuration provider
-if(!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("VaultUri")))
+if(!string.IsNullOrEmpty(builder.Configuration["VaultUri"]))
 {
     builder.Configuration.AddAzureKeyVault(
-        new Uri(Environment.GetEnvironmentVariable("VaultUri")),
+        new Uri(builder.Configuration["VaultUri"]),
         new DefaultAzureCredential());
 }
 
 // Add the Entity Framework Core DBContext
-builder.Services.AddDbContext<JobSiteDb>(_ =>
+builder.Services.AddDbContext<JobSiteDb>(options =>
 {
-    _.UseSqlServer(
+    options.UseSqlServer(
         builder.Configuration
-            .GetConnectionString(
-                "AzureSqlConnectionString"));
+            .GetConnectionString("AzureSqlConnectionString"));
 });
 
 // Add Azure Storage services to the app
-builder.Services.AddAzureClients(_ =>
+builder.Services.AddAzureClients(options =>
 {
-    _.AddBlobServiceClient(
-        builder.Configuration
-            ["AzureStorageConnectionString"]
-        );
+    options.AddBlobServiceClient(
+        builder.Configuration["AzureStorageConnectionString"]);
 });
 
 // Enable the API explorer
@@ -54,10 +49,9 @@ builder.Services.AddRazorPages();
 var openApiDesc = "Contoso.JobSiteAppApi";
 
 // Add OpenAPI services to the container.
-builder.Services.AddSwaggerGen(_ =>
+builder.Services.AddSwaggerGen(options =>
 {
-    _.OperationFilter<ImageExtensionFilter>();
-    _.SwaggerDoc(openApiDesc, new() 
+    options.SwaggerDoc(openApiDesc, new() 
     { 
         Title = "Job Site Survey App API", 
         Version = "2021-11-01" 
@@ -97,14 +91,10 @@ app.MapGet("/jobs",
     .Produces<List<Job>>(StatusCodes.Status200OK)
     .WithName("GetAllJobs");
 
-
 // Enables GET of a specific job
 app.MapGet("/jobs/{id}",
     async (int id, JobSiteDb db) =>
-        await db.Jobs
-                .Include("Photos")
-                    .FirstOrDefaultAsync(_ =>
-                        _.Id == id)
+        await db.Jobs.FirstOrDefaultAsync(jobs => jobs.Id == id)
             is Job job
                 ? Results.Ok(job)
                 : Results.NotFound()
@@ -115,8 +105,7 @@ app.MapGet("/jobs/{id}",
 
 // Enables creation of a new job 
 app.MapPost("/jobs/", 
-    async (Job job, 
-        JobSiteDb db) =>
+    async (Job job, JobSiteDb db) =>
     {
         db.Jobs.Add(job);
         await db.SaveChangesAsync();
@@ -131,7 +120,6 @@ app.MapPost("/jobs/",
 app.MapGet("/jobs/search/{query}",
     (string query, JobSiteDb db) =>
         db.Jobs
-            .Include("Photos")
             .Where(x => x.Name.Contains(query))
             is IEnumerable<Job> jobs
                 ? Results.Ok(jobs)
@@ -141,91 +129,16 @@ app.MapGet("/jobs/search/{query}",
     .Produces(StatusCodes.Status404NotFound)
     .WithName("SearchJobs");
 
-// Upload a site photo
-app.MapPost(
-    "/jobs/{jobId}/photos/{lat}/{lng}/{heading}", 
-    async (HttpRequest req,
-        int jobId,
-        double lat,
-        double lng,
-        int heading,
-        BlobServiceClient blobServiceClient,
-        JobSiteDb db) =>
-    {
-        if (!req.HasFormContentType)
-        {
-            return Results.BadRequest();
-        }
-
-        var form = await req.ReadFormAsync();
-        var file = form.Files["file"];
-
-        if (file is null) 
-            return Results.BadRequest();
-
-        using var upStream = 
-           file.OpenReadStream();
-
-        var blobClient = blobServiceClient
-               .GetBlobContainerClient("uploads")
-                   .GetBlobClient(file.FileName);
-
-        await blobClient.UploadAsync(upStream);
-
-        db.JobSitePhotos.Add(new JobSitePhoto
-        {
-            JobId = jobId,
-            Latitude = lat,
-            Longitude = lng,
-            Heading = heading,
-            PhotoUploadUrl =
-                blobClient.Uri.AbsoluteUri
-        });
-
-        await db.SaveChangesAsync();
-
-        var job = await db.Jobs
-                    .Include("Photos")
-                    .FirstOrDefaultAsync(x =>
-                        x.Id == jobId);
-
-        return Results.Created(
-            $"/jobs/{jobId}", job);
-    })
-    .Produces<Job>(StatusCodes.Status200OK,
-        "application/json")
-    .WithName(
-        ImageExtensionFilter
-            .UPLOAD_SITE_PHOTO_OPERATION_ID);
-
 app.UseHttpsRedirection();
 
 app.UseBlazorFrameworkFiles();
 app.UseStaticFiles();
-
-app.UseRouting();
 
 app.MapRazorPages();
 app.MapFallbackToFile("index.html");
 
 // Start the host and run the app
 app.Run();
-
-// ----------------------------------------------
-// Site Job Data Code
-// ----------------------------------------------
-public class JobSitePhoto
-{
-    [DatabaseGenerated(
-        DatabaseGeneratedOption.Identity)]
-    public int Id { get; set; }
-    public int Heading { get; set; }
-    public int JobId { get; set; }
-    public double Latitude { get; set; }
-    public double Longitude { get; set; }
-    public string PhotoUploadUrl { get; set; }
-        = string.Empty;
-}
 
 public class Job
 {
@@ -236,8 +149,6 @@ public class Job
     public double Longitude { get; set; }
     public string Name { get; set; }
         = string.Empty;
-    public List<JobSitePhoto> Photos 
-        { get; set; } = new List<JobSitePhoto>();
 }
 
 class JobSiteDb : DbContext
@@ -248,16 +159,4 @@ class JobSiteDb : DbContext
 
     public DbSet<Job> Jobs
         => Set<Job>();
-
-    public DbSet<JobSitePhoto> JobSitePhotos
-        => Set<JobSitePhoto>();
-
-    protected override void OnModelCreating(
-        ModelBuilder modelBuilder)
-    {
-        modelBuilder.Entity<Job>()
-                .HasMany(s => s.Photos);
-
-        base.OnModelCreating(modelBuilder);
-    }
 }
