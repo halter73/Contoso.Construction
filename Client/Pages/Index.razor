@@ -1,5 +1,7 @@
 ﻿@inject HttpClient Http
 @inject IJSRuntime JsRuntime
+@inject IHttpClientFactory ClientFactory
+@inject IAccessTokenProvider TokenProvider
 
 @page "/"
 
@@ -30,11 +32,20 @@ else
             Longitude = args.Position.Lng,
             Name = name
         };
-        await Http.PostAsJsonAsync("jobs", job);
-        jobs.Add(job);
+
+        try
+        {
+            await Http.PostAsJsonAsync("jobs", job);
+            jobs.Add(job);
+        } 
+        catch (AccessTokenNotAvailableException e)
+        {
+            e.Redirect();
+        }
     }
 
     protected override async Task OnInitializedAsync() {
-        jobs = await Http.GetFromJsonAsync<List<Job>>("jobs");
+        var client = ClientFactory.CreateClient("Contoso.Construction.Client.ServerAPI.NoAuth");
+        jobs = await client.GetFromJsonAsync<List<Job>>("jobs");
     }
 }

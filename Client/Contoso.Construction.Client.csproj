@@ -12,6 +12,7 @@
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="6.0.0-rtm.21507.16" PrivateAssets="all" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="6.0.0-rtm.21507.16" />
     <PackageReference Include="Radzen.Blazor" Version="3.11.1" />
+    <PackageReference Include="Microsoft.Authentication.WebAssembly.Msal" Version="6.0.0-rtm.21507.16" />
   </ItemGroup>
 
   <ItemGroup>

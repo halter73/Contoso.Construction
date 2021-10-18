@@ -82,7 +82,8 @@ app.MapPost("/jobs/",
     .Accepts<Job>("application/json")
     .Produces<Job>(StatusCodes.Status201Created)
     .WithName("CreateJob")
-    .WithTags("Creators");
+    .WithTags("Creators")
+    .RequireAuthorization();
 
 // Enables searching for a job
 app.MapGet("/jobs/search/{query}",
@@ -103,6 +104,9 @@ app.UseBlazorFrameworkFiles();
 app.UseStaticFiles();
 
 app.UseRouting();
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapRazorPages();
 app.MapFallbackToFile("index.html");
