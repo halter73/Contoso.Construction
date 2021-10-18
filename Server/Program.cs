@@ -12,7 +12,7 @@ if(!string.IsNullOrEmpty(builder.Configuration["VaultUri"]))
         new DefaultAzureCredential());
 }
 
-// Add the Entity Framework Core DBContext
+// // Add the Entity Framework Core DBContext
 builder.Services.AddDbContext<JobSiteDb>(options =>
 {
     options.UseSqlServer(
@@ -25,6 +25,10 @@ builder.Services.AddEndpointsApiExplorer();
 
 // Add OpenAPI services to the container.
 builder.Services.AddSwaggerGen();
+
+// Enable Blazor WASM hosting
+builder.Services.AddControllersWithViews();
+builder.Services.AddRazorPages();
 
 // Build the app
 var app = builder.Build();
@@ -94,7 +98,14 @@ app.MapGet("/jobs/search/{query}",
     .WithName("SearchJobs")
     .WithTags("Getters");
 
-app.UseHttpsRedirection();
+// Register middlewares for hosting Blazor apps.
+app.UseBlazorFrameworkFiles();
+app.UseStaticFiles();
+
+app.UseRouting();
+
+app.MapRazorPages();
+app.MapFallbackToFile("index.html");
 
 // Start the host and run the app
 app.Run();

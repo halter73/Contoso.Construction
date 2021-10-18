@@ -1,0 +1,40 @@
+﻿@inject HttpClient Http
+@inject IJSRuntime JsRuntime
+
+@page "/"
+
+@if (jobs == null)
+{
+    <p>Loading jobs...</p>
+}
+else
+{
+    <RadzenGoogleMap style="height: 100%" Zoom=6 Center=@(new GoogleMapPosition() { Lat = 47.63974, Lng = -122 }) MapClick=@OnMapClick>
+        <Markers>
+            @foreach (var job in jobs)
+            {
+                <RadzenGoogleMapMarker Title=@job.Id.ToString() Label=@job.Name Position=@(new GoogleMapPosition() { Lat = job.Latitude, Lng = job.Longitude }) />
+            }
+        </Markers>
+    </RadzenGoogleMap>
+}
+
+@code {
+    private List<Job> jobs = new();
+
+    async Task OnMapClick(GoogleMapClickEventArgs args)
+    {
+        string name = await JsRuntime.InvokeAsync<string>("prompt", "What's the new job site name?");
+        var job = new Job() {
+            Latitude = args.Position.Lat,
+            Longitude = args.Position.Lng,
+            Name = name
+        };
+        await Http.PostAsJsonAsync("jobs", job);
+        jobs.Add(job);
+    }
+
+    protected override async Task OnInitializedAsync() {
+        jobs = await Http.GetFromJsonAsync<List<Job>>("jobs");
+    }
+}
