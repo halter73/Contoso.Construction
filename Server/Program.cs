@@ -1,19 +1,8 @@
 using Azure.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Azure;
-using System.ComponentModel.DataAnnotations.Schema;
 
 var builder = WebApplication.CreateBuilder(args);
-
-// ----------------------------------------------
-// Note: This is commented out to enable "clone-
-// to-build success, as until you've created the
-// key vault resource and put the Vault URI into
-// Properties/launchSettings.json, this code will
-// result with a compilation error. Run the setup
-// scripts in the "setup" folder in the GitHub 
-// repo, and then you can paste the Vault URI. 
-// ----------------------------------------------
 
 // Add the Azure Key Vault configuration provider
 if(!string.IsNullOrEmpty(builder.Configuration["VaultUri"]))
@@ -31,32 +20,11 @@ builder.Services.AddDbContext<JobSiteDb>(options =>
             .GetConnectionString("AzureSqlConnectionString"));
 });
 
-// Add Azure Storage services to the app
-builder.Services.AddAzureClients(options =>
-{
-    options.AddBlobServiceClient(
-        builder.Configuration["AzureStorageConnectionString"]);
-});
-
 // Enable the API explorer
 builder.Services.AddEndpointsApiExplorer();
 
-// Enable Blazor WASM hosting
-builder.Services.AddControllersWithViews();
-builder.Services.AddRazorPages();
-
-// The OpenAPI description name
-var openApiDesc = "Contoso.JobSiteAppApi";
-
 // Add OpenAPI services to the container.
-builder.Services.AddSwaggerGen(options =>
-{
-    options.SwaggerDoc(openApiDesc, new() 
-    { 
-        Title = "Job Site Survey App API", 
-        Version = "2021-11-01" 
-    });
-});
+builder.Services.AddSwaggerGen();
 
 // Build the app
 var app = builder.Build();
@@ -64,16 +32,8 @@ var app = builder.Build();
 // Configure for development 
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger(c =>
-    {
-        c.SerializeAsV2 = true;
-        c.RouteTemplate = "/{documentName}.json";
-    });
-
-    app.UseSwaggerUI(c =>
-        c.SwaggerEndpoint(
-            $"/{openApiDesc}.json", openApiDesc)
-        );
+    app.UseSwagger();
+    app.UseSwaggerUI();
 
     // Make sure the SQL DB schema has been created
     using (var scope = app.Services.CreateScope())
@@ -89,7 +49,8 @@ app.MapGet("/jobs",
         await db.Jobs.ToListAsync()
     )
     .Produces<List<Job>>(StatusCodes.Status200OK)
-    .WithName("GetAllJobs");
+    .WithName("GetAllJobs")
+    .WithTags("Getters");
 
 // Enables GET of a specific job
 app.MapGet("/jobs/{id}",
@@ -101,7 +62,8 @@ app.MapGet("/jobs/{id}",
     )
     .Produces<Job>(StatusCodes.Status200OK)
     .Produces(StatusCodes.Status404NotFound)
-    .WithName("GetJob");
+    .WithName("GetJob")
+    .WithTags("Getters");
 
 // Enables creation of a new job 
 app.MapPost("/jobs/", 
@@ -113,8 +75,10 @@ app.MapPost("/jobs/",
         return Results.Created(
             $"/jobs/{job.Id}", job); 
     })
+    .Accepts<Job>("application/json")
     .Produces<Job>(StatusCodes.Status201Created)
-    .WithName("CreateJob");
+    .WithName("CreateJob")
+    .WithTags("Creators");
 
 // Enables searching for a job
 app.MapGet("/jobs/search/{query}",
@@ -123,33 +87,17 @@ app.MapGet("/jobs/search/{query}",
             .Where(x => x.Name.Contains(query))
             is IEnumerable<Job> jobs
                 ? Results.Ok(jobs)
-                : Results.NotFound(new Job[] { })
+                : Results.NotFound(Array.Empty<Job>())
     )
     .Produces<List<Job>>(StatusCodes.Status200OK)
     .Produces(StatusCodes.Status404NotFound)
-    .WithName("SearchJobs");
+    .WithName("SearchJobs")
+    .WithTags("Getters");
 
 app.UseHttpsRedirection();
 
-app.UseBlazorFrameworkFiles();
-app.UseStaticFiles();
-
-app.MapRazorPages();
-app.MapFallbackToFile("index.html");
-
 // Start the host and run the app
 app.Run();
-
-public class Job
-{
-    [DatabaseGenerated(
-        DatabaseGeneratedOption.Identity)]
-    public int Id { get; set; }
-    public double Latitude { get; set; }
-    public double Longitude { get; set; }
-    public string Name { get; set; }
-        = string.Empty;
-}
 
 class JobSiteDb : DbContext
 {
