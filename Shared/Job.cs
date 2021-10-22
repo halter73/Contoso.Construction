@@ -1,5 +1,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
 
+namespace Contoso.Construction.Shared;
+
 public class Job
 {
     [DatabaseGenerated(
