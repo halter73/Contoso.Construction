@@ -1,12 +1,10 @@
-using Xunit;
 using Contoso.Construction.Server.Services;
-using Microsoft.EntityFrameworkCore;
-using Moq;
+using Contoso.Construction.Shared;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
-using System.Text.Json;
+using Microsoft.EntityFrameworkCore;
 using MinimalApis.Extensions.Results;
-using Contoso.Construction;
+using Moq;
+using Xunit;
 
 public class UnitTests
 {

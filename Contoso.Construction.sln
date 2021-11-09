@@ -3,15 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31601.41
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{05B6B7F9-A1C3-442C-9A6F-BCBC28D3DF42}"
-	ProjectSection(SolutionItems) = preProject
-		Contoso.Construction\deploy.bicep = Contoso.Construction\deploy.bicep
-		Contoso.Construction\setup.ps1 = Contoso.Construction\setup.ps1
-	EndProjectSection
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Contoso.Construction.Client", "Client\Contoso.Construction.Client.csproj", "{B56DC510-95F3-4F00-9EA5-C73A936C8869}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Contoso.Construction.Server", "Server\Contoso.Construction.Server.csproj", "{E7872365-BE44-4159-B22E-6F0DD71C8A55}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Contoso.Construction.Shared", "Shared\Contoso.Construction.Shared.csproj", "{F823328F-3AD9-4D7B-9802-28E665789D7E}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Contoso.Construction.Tests", "Tests\Contoso.Construction.Tests.csproj", "{D06233A2-4AA3-4EC4-BEB0-FB1C5D224F20}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,6 +25,14 @@ Global
 		{E7872365-BE44-4159-B22E-6F0DD71C8A55}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E7872365-BE44-4159-B22E-6F0DD71C8A55}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E7872365-BE44-4159-B22E-6F0DD71C8A55}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F823328F-3AD9-4D7B-9802-28E665789D7E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F823328F-3AD9-4D7B-9802-28E665789D7E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F823328F-3AD9-4D7B-9802-28E665789D7E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F823328F-3AD9-4D7B-9802-28E665789D7E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D06233A2-4AA3-4EC4-BEB0-FB1C5D224F20}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D06233A2-4AA3-4EC4-BEB0-FB1C5D224F20}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D06233A2-4AA3-4EC4-BEB0-FB1C5D224F20}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D06233A2-4AA3-4EC4-BEB0-FB1C5D224F20}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

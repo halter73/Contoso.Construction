@@ -1,10 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Query;
+using System.Linq.Expressions;
 
 internal class TestDbAsyncQueryProvider<TEntity> : IAsyncQueryProvider
     {
@@ -42,19 +37,19 @@ internal class TestDbAsyncQueryProvider<TEntity> : IAsyncQueryProvider
                 .GetMethod(
                     name: nameof(IQueryProvider.Execute),
                     genericParameterCount: 1,
-                    types: new[] { typeof(Expression) })
+                    types: new[] { typeof(Expression) })!
                 .MakeGenericMethod(expectedResultType)
                 .Invoke(this, new[] { expression });
 
-            return (TResult)typeof(Task).GetMethod(nameof(Task.FromResult))
+            return (TResult)typeof(Task).GetMethod(nameof(Task.FromResult))!
                 .MakeGenericMethod(expectedResultType)
-                .Invoke(null, new[] { executionResult });
+                .Invoke(null, new[] { executionResult })!;
         }
 
         private static T CompileExpressionItem<T>(Expression expression)
             => Expression.Lambda<Func<T>>(
                 body: new Visitor().Visit(expression) ?? throw new InvalidOperationException("Visitor returns null"),
-                parameters: (IEnumerable<ParameterExpression>) null)
+                parameters: null)
             .Compile()();
         
         private class Visitor : ExpressionVisitor { }

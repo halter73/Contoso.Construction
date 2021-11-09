@@ -1,4 +1,6 @@
-﻿@inject HttpClient Http
+﻿@using Contoso.Construction.Shared
+
+@inject HttpClient Http
 @inject IJSRuntime JsRuntime
 @inject IHttpClientFactory ClientFactory
 @inject IAccessTokenProvider TokenProvider
@@ -46,6 +48,6 @@ else
 
     protected override async Task OnInitializedAsync() {
         var client = ClientFactory.CreateClient("Contoso.Construction.Client.ServerAPI.NoAuth");
-        jobs = await client.GetFromJsonAsync<List<Job>>("jobs");
+        jobs = await client.GetFromJsonAsync<List<Job>>("jobs") ?? new();
     }
 }

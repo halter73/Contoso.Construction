@@ -6,6 +6,14 @@ using Contoso.Construction.Shared;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Add the Azure Key Vault configuration provider
+if (!string.IsNullOrEmpty(builder.Configuration["VaultUri"]))
+{
+    builder.Configuration.AddAzureKeyVault(
+        new Uri(builder.Configuration["VaultUri"]),
+        new DefaultAzureCredential());
+}
+
 // // Add the Entity Framework Core DBContext
 builder.Services.AddDbContext<JobSiteDb>(options =>
 {
@@ -87,7 +95,7 @@ app.MapGet("/jobs/search/{query}",
     .WithName("SearchJobs")
     .WithTags("Getters");
 
-// Register middlewares for hosting Blazor apps.
+// Register middleware for hosting Blazor apps.
 app.UseBlazorFrameworkFiles();
 app.UseStaticFiles();
 

@@ -1,7 +1,6 @@
-using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Http;
-using MinimalApis.Extensions.Results;
 using Contoso.Construction.Shared;
+using Microsoft.EntityFrameworkCore;
+using MinimalApis.Extensions.Results;
 
 namespace Contoso.Construction.Server.Services;
 
