@@ -1,4 +1,4 @@
-using Contoso.Construction.Server.Services;
+using Contoso.Construction.Server;
 using Contoso.Construction.Shared;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
@@ -9,14 +9,14 @@ using Xunit;
 public class UnitTests
 {
     [Fact]
-    public void GetJobsByQueryReturnsEmptyForInvalidQuery()
+    public async Task GetJobsByQueryReturnsEmptyForInvalidQuery()
     {
         // Arrange
         var mockContext = CreateMockDbContext();
         var service = new JobsService(mockContext.Object);
 
         // Act
-        var jobs = service.GetJobsByQuery("foo");
+        var jobs = await service.GetJobsByName("foo");
         
         // Assert
         Assert.Empty(jobs);

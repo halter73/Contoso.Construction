@@ -1,7 +1,7 @@
 using Azure.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Azure;
-using Contoso.Construction.Server.Services;
+using Contoso.Construction.Server;
 using Contoso.Construction.Shared;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -84,15 +84,28 @@ app.MapPost("/jobs/",
     .RequireAuthorization();
 
 // Enables searching for a job
-app.MapGet("/jobs/search/{query}",
-    (string query, JobsService jobs) =>
+app.MapGet("/jobs/search/name/{query}",
+    async (string query, JobsService jobs) =>
     {
-        var result = jobs.GetJobsByQuery(query);
+        var result = await jobs.GetJobsByName(query);
         return !result.Any() ? Results.NotFound() : Results.Ok(jobs);
     })
     .Produces<List<Job>>(StatusCodes.Status200OK)
     .Produces(StatusCodes.Status404NotFound)
-    .WithName("SearchJobs")
+    .WithName("SearchJobsByName")
+    .WithTags("Getters");
+
+// Search by lat,lon
+app.MapGet("/jobs/search/location/{coordinate}",
+    (Coordinate coordinate, JobsService jobs) =>
+        jobs.GetJobsWhere(job =>
+           job.Latitude > coordinate.Latitude - 1 &&
+           job.Latitude < coordinate.Latitude + 1 &&
+           job.Longitude > coordinate.Longitude - 1 &&
+           job.Longitude < coordinate.Longitude + 1
+        )
+    )
+    .WithName("SearchJobsByLocation")
     .WithTags("Getters");
 
 // Register middleware for hosting Blazor apps.

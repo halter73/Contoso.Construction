@@ -1,8 +1,9 @@
 using Contoso.Construction.Shared;
 using Microsoft.EntityFrameworkCore;
 using MinimalApis.Extensions.Results;
+using System.Linq.Expressions;
 
-namespace Contoso.Construction.Server.Services;
+namespace Contoso.Construction.Server;
 
 public class JobsService
 {
@@ -19,7 +20,7 @@ public class JobsService
 
     public async Task<IResult> GetJobById(int id)
     {
-        var job = await _database.Jobs.FirstOrDefaultAsync(jobs => jobs.Id == id);
+        var job = await _database.Jobs.FirstOrDefaultAsync(j => j.Id == id);
         return job is null ? Results.Extensions.NotFound() : Results.Extensions.Ok(job);
     }
 
@@ -31,9 +32,8 @@ public class JobsService
             $"/jobs/{job.Id}", job);
     }
 
-    public IEnumerable<Job> GetJobsByQuery(string query)
-    {
-        var jobs = _database.Jobs.Where(x => x.Name.Contains(query));
-        return jobs.Any() ? jobs.AsEnumerable() : Array.Empty<Job>();
-    }
+    public Task<List<Job>> GetJobsByName(string query) => GetJobsWhere(j => j.Name.Contains(query));
+
+    public Task<List<Job>> GetJobsWhere(Expression<Func<Job, bool>> predicate) =>
+        _database.Jobs.Where(predicate).ToListAsync();
 }
