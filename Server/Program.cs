@@ -60,6 +60,16 @@ app.MapGet("/jobs",
     .WithName("GetAllJobs")
     .WithTags("Getters");
 
+// Enables GET of all jobs as XML
+app.MapGet("/jobsxml",
+    async (JobsService jobs) =>
+    {
+        return Results.Extensions.Xml(await jobs.GetAllJobs());
+    })
+    .Produces<List<Job>>(StatusCodes.Status200OK, "application/xml")
+    .WithName("GetAllJobsAsXml")
+    .WithTags("Getters");
+
 // Enables GET of a specific job
 app.MapGet("/jobs/{id}",
     async (int id, JobsService jobs) =>
