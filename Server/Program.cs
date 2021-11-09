@@ -132,6 +132,3 @@ app.MapFallbackToFile("index.html");
 
 // Start the host and run the app
 app.Run();
-
-// Switch to IVT
-public partial class Program { }
